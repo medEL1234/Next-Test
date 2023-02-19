@@ -5,13 +5,15 @@ import Head from "next/head";
 import styles from "../../styles/coffee-shop.module.css";
 import Image from "next/image";
 import cls from "classnames";
+import { fetchCofeeShop } from "@/lib/cofee-shop";
 //create a static props function for pre randing data
 export async function getStaticProps({ params }) {
   console.log(params.id);
   console.log(params);
+  const coffeeshop = await fetchCofeeShop();
   return {
     props: {
-      coffeeshop: coffeeshopeData.find((coffeeshop) => {
+      coffeeshop: coffeeshop.find((coffeeshop) => {
         return coffeeshop.id.toString() === params.id;
       }),
     },
@@ -20,11 +22,10 @@ export async function getStaticProps({ params }) {
 
 //create getStaticPath for use the dynamic route
 export async function getStaticPaths() {
-  const paths = coffeeshopeData.map((item) => {
+  const coffeeshop = await fetchCofeeShop();
+  const paths = coffeeshop.items?.map((coffeeshop) => {
     return {
-      params: {
-        id: item.id.toString(),
-      },
+      params: { id: coffeeshop.id.toString() },
     };
   });
   return {
@@ -72,7 +73,10 @@ function CoffeeShope(props) {
           </div>
 
           <Image
-            src={props.coffeeshop.imgUrl}
+            src={
+              props.coffeeshop.imgUrl ||
+              "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"
+            }
             height="600"
             width="550"
             className={styles.storeImg}
@@ -85,16 +89,20 @@ function CoffeeShope(props) {
               width="24"
               height="24"
             ></Image>
-            <p className={styles.text}>{props.coffeeshop.address}</p>
+            <p className={styles.text}>{props.coffeeshop.location.address}</p>
           </div>
-          <div className={styles.iconWrapper}>
-            <Image
-              src="/assets/icons/iconTow.svg"
-              width="24"
-              height="24"
-            ></Image>
-            <p className={styles.text}>{props.coffeeshop.neighbourhood}</p>
-          </div>
+          {location.neighborhood && (
+            <div className={styles.iconWrapper}>
+              <Image
+                src="/assets/icons/iconTow.svg"
+                width="24"
+                height="24"
+              ></Image>
+              <p className={styles.text}>
+                {props.coffeeshop.location.neighborhood}
+              </p>
+            </div>
+          )}
           <div className={styles.iconWrapper}>
             <Image
               src="/assets/icons/iconThree.svg"
